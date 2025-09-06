@@ -61,21 +61,21 @@ function createGradients(parent: SVGDefsElement, rot: number, color: string, num
 
         parent.appendChild(linearGradient);
     }
-
-
 }
 
 function createRadialBars(parent: SVGGElement, rot: number, rInner: number, rOuter: number, values: number[]) {
     const cx = svg.viewBox.baseVal.width / 2;
     const cy = svg.viewBox.baseVal.height / 2;
     const angleStep = 360 / values.length;
+    const maxValue = Math.max(...values);
+
 
     values.forEach((value, i) => {
         const startAngle = i * angleStep + rot;
         const startRad = startAngle * Math.PI / 180;
         const endAngle = (i + 1) * angleStep + rot;
         const endRad = endAngle * Math.PI / 180;
-        const rOuter = rInner + (rOuterMax - rInner) * (value / 100);
+        const rWedge = rInner + (rOuter - rInner) * (value / maxValue);
         const x1Inner = cx + rInner * Math.cos(startRad);
         const y1Inner = cy + rInner * Math.sin(startRad);
         const x2Inner = cx + rInner * Math.cos(endRad);
