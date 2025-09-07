@@ -51,12 +51,13 @@ function createGradients(parent: SVGDefsElement, rot: number, color: string, num
 
         const stop1 = document.createElementNS(svgNS, "stop");
         stop1.setAttribute("offset", "0%");
-        stop1.setAttribute("style", `stop-color:${color};stop-opacity:1`);
+        stop1.setAttribute("class", "gradient-stop-1");
         linearGradient.appendChild(stop1);
 
         const stop2 = document.createElementNS(svgNS, "stop");
         stop2.setAttribute("offset", "100%");
-        stop2.setAttribute("style", `stop-color:${lightenColor(color, 0.5)};stop-opacity:1`);
+        stop2.setAttribute("class", "gradient-stop-2");
+
         linearGradient.appendChild(stop2);
 
         parent.appendChild(linearGradient);
