@@ -3,26 +3,42 @@ const svg = document.querySelector("svg") as SVGSVGElement;
 const defs = document.querySelector("svg defs") as SVGDefsElement | null;
 const dataLabels = document.querySelector("#dataLabels") as SVGGElement | null;
 const valueLabels = document.querySelector("#valueLabels") as SVGGElement | null;
+const counterLabel = document.querySelector("#counterLabel") as SVGGElement | null;
 const radialBars = document.querySelector("#radialBars") as SVGGElement | null;
 const button = document.querySelector("#button") as SVGGElement | null;
-const range = Array.from({ length: 24 }, (_, i) => i + 1);
-const data = Array.from({ length: 24 }, () => Math.round(100 * Math.random() / 2));
+const data = Array.from({ length: 24 }, () => Math.round(100 * Math.random() / 50));
 
 assertNotNull(svg, "svg missing");
 assertNotNull(defs, "defs missing");
 assertNotNull(dataLabels, "dataLabels missing");
 assertNotNull(valueLabels, "valueLabels missing");
+assertNotNull(counterLabel, "counterLabel missing");
 assertNotNull(radialBars, "radialBars missing");
 assertNotNull(button, "button missing");
 
-createLabels(dataLabels, 190, range);
-createLabels(valueLabels, 100, data);
-createGradients(defs, -82.5, 24);
-createRadialBars(radialBars, -82.5 + 180, 80, 180, data);
+setupChart(defs, dataLabels, Array.from({ length: 24 }, (_, i) => i + 1));
+setData(valueLabels, counterLabel, radialBars, data);
 
 button.addEventListener("click", () => {
     console.log("not implemented yet");
 });
+
+function setData(valueLabels: SVGGElement, counterLabel: SVGGElement, radialBars: SVGGElement, data: number[]) {
+    const counterValue = data.reduce((a, b) => a + b, 0);
+
+    counterLabel.textContent = counterValue.toString();
+
+    valueLabels.replaceChildren();
+    createLabels(valueLabels, 100, data);
+
+    radialBars.replaceChildren();
+    createRadialBars(radialBars, -82.5 + 180, 80, 180, data);
+}
+
+function setupChart(defs: SVGDefsElement, dataLabels: SVGGElement, range: number[]) {
+    createGradients(defs, -82.5 + 180, range.length);
+    createLabels(dataLabels, 190, range);
+}
 
 function createLabels(parent: SVGGElement, radius: number, values: number[]) {
     const angleStep = 360 / values.length
