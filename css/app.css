@@ -39,3 +39,32 @@ svg {
     stop-opacity: 1;
 
 }
+
+#button {
+    stroke: #eee;
+    stroke-width: 1px;
+    fill: #3BA6F5;
+}
+
+#button:hover {
+    stroke: #59f9ff;
+    stroke-width: 2px;
+}
+
+#button:active {
+    cursor: pointer;
+    transform-origin: 200px 200px;
+    animation: pulse 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px #59f9ff);
+    }
+
+    100% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 20px #59f9ff);
+    }
+}

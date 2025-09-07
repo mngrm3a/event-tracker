@@ -4,6 +4,7 @@ const defs = document.querySelector("svg defs") as SVGDefsElement | null;
 const dataLabels = document.querySelector("#dataLabels") as SVGGElement | null;
 const valueLabels = document.querySelector("#valueLabels") as SVGGElement | null;
 const radialBars = document.querySelector("#radialBars") as SVGGElement | null;
+const button = document.querySelector("#button") as SVGGElement | null;
 const range = Array.from({ length: 24 }, (_, i) => i + 1);
 const data = Array.from({ length: 24 }, () => Math.round(100 * Math.random() / 2));
 
@@ -12,11 +13,16 @@ assertNotNull(defs, "defs missing");
 assertNotNull(dataLabels, "dataLabels missing");
 assertNotNull(valueLabels, "valueLabels missing");
 assertNotNull(radialBars, "radialBars missing");
+assertNotNull(button, "button missing");
 
 createLabels(dataLabels, 190, range);
 createLabels(valueLabels, 100, data);
-createGradients(defs, -82.5, "#3BA6F5", 24);
+createGradients(defs, -82.5, 24);
 createRadialBars(radialBars, -82.5 + 180, 80, 180, data);
+
+button.addEventListener("click", () => {
+    console.log("not implemented yet");
+});
 
 function createLabels(parent: SVGGElement, radius: number, values: number[]) {
     const angleStep = 360 / values.length
@@ -35,7 +41,7 @@ function createLabels(parent: SVGGElement, radius: number, values: number[]) {
     });
 }
 
-function createGradients(parent: SVGDefsElement, rot: number, color: string, num: number) {
+function createGradients(parent: SVGDefsElement, rot: number, num: number) {
     const angleStep = 360 / num;
 
     for (let i = 0; i < num; i++) {
