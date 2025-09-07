@@ -33,7 +33,7 @@ jobs:
           npx tsc
           mkdir -p ${{ env.PUBLISH_DIR }}/dist
           cp dist/*.js ${{ env.PUBLISH_DIR }}/dist/
-          cp index.html ${{ env.PUBLISH_DIR }}/
+          cp -r index.html css/ ${{ env.PUBLISH_DIR }}/
       
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
