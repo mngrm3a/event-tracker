@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+env:
+  BUILD_DIR: ./dist
+  PUBLISH_DIR: ./publish
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm install typescript
+
+      - name: Build
+        run: |
+          npx tsc
+          mkdir -p ${{ env.PUBLISH_DIR }}/dist
+          cp dist/*.js ${{ env.PUBLISH_DIR }}/dist/
+          cp index.html ${{ env.PUBLISH_DIR }}/
+      
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/dev'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.PUBLISH_DIR }}
