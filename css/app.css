@@ -34,18 +34,6 @@ svg {
     display: block;
 }
 
-.gradient-stop-1 {
-    stop-color: var(--blue-dark);
-    stop-opacity: 1;
-
-}
-
-.gradient-stop-2 {
-    stop-color: var(--blue-light);
-    stop-opacity: 1;
-
-}
-
 #border {
     stroke: #eee;
     stroke-width: 1px;
@@ -59,8 +47,11 @@ svg {
     animation: pulse-stroke 1s ease-in-out infinite alternate;
 }
 
-#button:active {
+#button:hover {
     cursor: pointer;
+}
+
+#button:active {
     transform-origin: 200px 200px;
     animation: pulse 0.4s ease-in-out infinite alternate;
 }
@@ -76,8 +67,14 @@ svg {
         stroke-width: 0.3em;
         stroke: var(--blue-dark);
         /* fill: var(--blue-light); */
-        /* opacity: 80%; */
     }
+}
+
+#counterLabel {
+    font: bold 5em monospace;
+    fill: var(--grey-light);
+    stroke-width: 1px;
+    stroke: var(--blue-light);
 }
 
 #dataLabels>g>text {
@@ -88,4 +85,16 @@ svg {
 #valueLabels>g>text {
     fill: var(--grey-dark);
     font: 10pt monospace;
+}
+
+.gradient-stop-1 {
+    stop-color: var(--blue-dark);
+    stop-opacity: 1;
+
+}
+
+.gradient-stop-2 {
+    stop-color: var(--blue-light);
+    stop-opacity: 1;
+
 }
