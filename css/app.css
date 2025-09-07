@@ -54,13 +54,9 @@ svg {
 
 #button {
     stroke: var(--blue-light);
-    stroke-width: 1px;
+    stroke-width: 0.3em;
     fill: var(--blue-dark);
-}
-
-#button:hover {
-    stroke: var(--blue-light);
-    stroke-width: 2px;
+    animation: pulse-stroke 1s ease-in-out infinite alternate;
 }
 
 #button:active {
@@ -72,6 +68,15 @@ svg {
 @keyframes pulse {
     100% {
         transform: scale(1.1);
+    }
+}
+
+@keyframes pulse-stroke {
+    100% {
+        stroke-width: 0.3em;
+        stroke: var(--blue-dark);
+        /* fill: var(--blue-light); */
+        /* opacity: 80%; */
     }
 }
 
