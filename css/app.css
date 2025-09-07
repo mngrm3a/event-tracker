@@ -67,8 +67,14 @@ svg {
         stroke-width: 0.3em;
         stroke: var(--blue-dark);
         /* fill: var(--blue-light); */
-        /* opacity: 80%; */
     }
+}
+
+#counterLabel {
+    font: bold 5em monospace;
+    fill: var(--grey-light);
+    stroke-width: 1px;
+    stroke: var(--blue-light);
 }
 
 #dataLabels>g>text {
