@@ -1,7 +1,6 @@
 name: Deploy to GitHub Pages
 
 env:
-  BUILD_DIR: ./dist
   PUBLISH_DIR: ./publish
 
 on:
@@ -26,13 +25,13 @@ jobs:
           node-version: 22
 
       - name: Install
-        run: npm install typescript
+        run: npm install
 
       - name: Build
         run: |
-          npx tsc
           mkdir -p ${{ env.PUBLISH_DIR }}/dist
-          cp dist/*.js ${{ env.PUBLISH_DIR }}/dist/
+          npm run check
+          npm run build:prod --outfile ${{ env.PUBLISH_DIR }}/dist/app.js
           cp -r index.html css/ ${{ env.PUBLISH_DIR }}/
       
       - name: Deploy

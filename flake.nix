@@ -23,7 +23,6 @@
           default = pkgs.mkShell {
             buildInputs = [
               pkgs.nodejs
-              pkgs.typescript
             ];
           };
         }
