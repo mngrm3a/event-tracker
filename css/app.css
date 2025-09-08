@@ -77,7 +77,7 @@ svg {
     stroke: var(--blue-light);
 }
 
-#dataLabels>g>text {
+#timeLabels>g>text {
     fill: var(--grey-dark);
     font: 10pt monospace;
 }

@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir -p ${{ env.PUBLISH_DIR }}/dist
           npm run check
-          npm run build:prod --outfile ${{ env.PUBLISH_DIR }}/dist/app.js
+          OUTFILE=${{ env.PUBLISH_DIR }}/dist/app.js npm run build:prod
           cp -r index.html css/ ${{ env.PUBLISH_DIR }}/
       
       - name: Deploy

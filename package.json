@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "npx esbuild src/index.ts --tsconfig=tsconfig.json --platform=browser --format=esm --target=esnext --bundle --outfile=dist/app.js",
-    "build:prod": "npm run build -- --minify",
-    "build:dev": "npm run build -- --sourcemap",
-    "serve": "npm run build:dev -- --watch --servedir=.",
-    "check": "npx tsc --noEmit",
+    "build": "esbuild src/index.ts --tsconfig=tsconfig.json --platform=browser --format=esm --target=esnext --bundle --outfile=${OUTFILE:-dist/app.js}",
+    "build:prod": "OUTFILE=${OUTFILE:-dist/app.js} npm run build -- --minify",
+    "build:dev": "OUTFILE=${OUTFILE:-dist/app.js} npm run build -- --sourcemap",
+    "serve": "OUTFILE=${OUTFILE:-dist/app.js} npm run build:dev -- --watch --servedir=.",
+    "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
