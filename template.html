@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Website with Tailwind and Chart.js</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <style>
+      /* Minimal custom CSS for carousel and slider functionality */
+      .carousel-item {
+        display: none;
+      }
+      .carousel-item.active {
+        display: block;
+      }
+      /* Custom slider background for dynamic fill */
+      .slider-container {
+        background: linear-gradient(
+          to right,
+          #60a5fa 0%,
+          #60a5fa 0%,
+          #d1d5db 0%,
+          #d1d5db 100%
+        );
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 text-gray-900 flex flex-col items-center justify-between h-screen overflow-hidden"
+  >
+    <!-- Main container: Limits width to 480px on larger screens, full width on mobile, fits within viewport height -->
+    <div class="w-full max-w-[480px] mx-auto flex flex-col h-screen">
+      <!-- Top Section: Carousel -->
+      <!-- Contains a carousel with three bar charts, navigable via buttons or swipe -->
+      <section class="relative bg-white rounded-t-lg p-4 flex-shrink-0 h-1/3">
+        <div class="carousel w-full h-full" id="carousel">
+          <!-- Each carousel item contains a Chart.js bar chart -->
+          <div class="carousel-item w-full h-full active">
+            <canvas id="chart1" class="w-full h-full"></canvas>
+          </div>
+          <div class="carousel-item w-full h-full">
+            <canvas id="chart2" class="w-full h-full"></canvas>
+          </div>
+          <div class="carousel-item w-full h-full">
+            <canvas id="chart3" class="w-full h-full"></canvas>
+          </div>
+        </div>
+        <!-- Navigation buttons: Positioned in top corners, low opacity, hover effect -->
+        <button
+          id="prevSlide"
+          class="absolute left-2 top-2 opacity-30 hover:opacity-50 transition-opacity"
+        >
+          <svg
+            class="w-6 h-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="#6b7280"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          id="nextSlide"
+          class="absolute right-2 top-2 opacity-30 hover:opacity-50 transition-opacity"
+        >
+          <svg
+            class="w-6 h-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 18L15 12L9 6"
+              stroke="#6b7280"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </section>
+
+      <!-- Middle Section: PolarArea Chart -->
+      <!-- Flex-grow ensures this section takes up remaining space, constrained within viewport -->
+      <section class="flex-grow bg-white p-4 overflow-hidden">
+        <canvas id="polarChart" class="w-full h-full"></canvas>
+      </section>
+
+      <!-- Bottom Section: Slider Button -->
+      <!-- Contains a range input that snaps back after reaching 100 -->
+      <section class="bg-white rounded-b-lg shadow-lg p-4 flex-shrink-0">
+        <div class="text-center">
+          <p id="sliderStatus" class="mb-2 text-gray-500">Slide to confirm</p>
+          <!-- Slider: Uses Tailwind for styling, custom background for fill -->
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+            class="slider-container w-full h-[36px] rounded-full appearance-none outline-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-12 [&::-webkit-slider-thumb]:h-12 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-4 [&::-webkit-slider-thumb]:border-blue-400 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md [&.completed::-webkit-slider-thumb]:bg-green-400 [&.completed::-webkit-slider-thumb]:border-green-400"
+            id="slider"
+          />
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Carousel Logic
+      // Manages slide navigation for the carousel
+      const carousel = document.getElementById('carousel');
+      const carouselItems = document.querySelectorAll('.carousel-item');
+      let currentSlide = 0;
+
+      function showSlide(index) {
+        carouselItems[currentSlide].classList.remove('active');
+        currentSlide = (index + carouselItems.length) % carouselItems.length;
+        carouselItems[currentSlide].classList.add('active');
+      }
+
+      // Button navigation
+      document.getElementById('nextSlide').addEventListener('click', () => {
+        showSlide(currentSlide + 1);
+      });
+
+      document.getElementById('prevSlide').addEventListener('click', () => {
+        showSlide(currentSlide - 1);
+      });
+
+      // Swipe Functionality for Mobile
+      // Detects swipe gestures with a minimum distance of 50px
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+
+      carousel.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const swipeDistance = touchEndX - touchStartX;
+        if (swipeDistance > 50) {
+          showSlide(currentSlide - 1); // Swipe right
+        } else if (swipeDistance < -50) {
+          showSlide(currentSlide + 1); // Swipe left
+        }
+      });
+
+      // Chart.js Configuration
+      // Shared options for bar charts: rounded bars and y-axis starting at zero
+      const barOptions = {
+        borderRadius: 4,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+          x: {
+            ticks: {
+              font: {
+                size: 10, // Smaller font size for x-axis labels
+              },
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            labels: {
+              font: {
+                size: 10, // Smaller font size for legend
+              },
+            },
+          },
+        },
+        maintainAspectRatio: false, // Allow chart to fill container
+      };
+
+      // Bar Chart 1
+      // Customize labels, data, and colors in the data object
+      const ctx1 = document.getElementById('chart1').getContext('2d');
+      new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
+          datasets: [
+            {
+              label: 'Sample Bar Chart 1',
+              data: [12, 19, 3, 5, 2],
+              backgroundColor: [
+                '#ef4444',
+                '#60a5fa',
+                '#eab308',
+                '#22c55e',
+                '#a855f7',
+              ],
+            },
+          ],
+        },
+        options: barOptions,
+      });
+
+      // Bar Chart 2
+      // Adjust labels and data for different datasets
+      const ctx2 = document.getElementById('chart2').getContext('2d');
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+          datasets: [
+            {
+              label: 'Sample Bar Chart 2',
+              data: [65, 59, 80, 81, 56],
+              backgroundColor: [
+                '#60a5fa',
+                '#ef4444',
+                '#eab308',
+                '#22c55e',
+                '#a855f7',
+              ],
+            },
+          ],
+        },
+        options: barOptions,
+      });
+
+      // Bar Chart 3
+      // Modify labels, data, or colors as needed
+      const ctx3 = document.getElementById('chart3').getContext('2d');
+      new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ['A', 'B', 'C', 'D'],
+          datasets: [
+            {
+              label: 'Sample Bar Chart 3',
+              data: [300, 50, 100, 75],
+              backgroundColor: ['#22c55e', '#f97316', '#ef4444', '#60a5fa'],
+            },
+          ],
+        },
+        options: barOptions,
+      });
+
+      // PolarArea Chart
+      // Represents a numeric value for each hour (0-23) with always-visible labels around the outer circle
+      // 12 o'clock is positioned at the top with a 180-degree rotation (π radians)
+      const polarCtx = document.getElementById('polarChart').getContext('2d');
+      new Chart(polarCtx, {
+        type: 'polarArea',
+        data: {
+          labels: Array.from({ length: 24 }, (_, i) => `${(i + 12) % 24}`), // Shift labels to start at 12
+          datasets: [
+            {
+              label: 'Hourly Data',
+              data: Array(24)
+                .fill(0)
+                .map(() => Math.floor(Math.random() * 20) + 5), // Random data for demo
+              backgroundColor: Array(24)
+                .fill(0)
+                .map(
+                  (_, i) =>
+                    `rgba(${[255, 96, 165, 234, 99][i % 5]}, ${[165, 245, 168, 108, 255][i % 5]}, ${[71, 90, 208, 195, 124][i % 5]}, 0.5)`,
+                ),
+            },
+          ],
+        },
+        options: {
+          maintainAspectRatio: false, // Allow chart to fill container
+          startAngle: Math.PI, // Rotate 180 degrees to place 12 at the top
+          plugins: {
+            legend: {
+              display: false, // Hide legend to reduce clutter
+            },
+          },
+          scales: {
+            r: {
+              ticks: {
+                display: false, // Hide radial tick values to focus on hour labels
+              },
+              pointLabels: {
+                display: true,
+                font: {
+                  size: 10, // Smaller font size for hour labels
+                },
+                color: '#1f2937', // Gray-800 for visibility
+              },
+            },
+          },
+        },
+      });
+
+      // Slider Logic
+      // Manages the range input behavior, including snap-back after confirmation
+      const slider = document.getElementById('slider');
+      const sliderStatus = document.getElementById('sliderStatus');
+
+      slider.addEventListener('input', () => {
+        const value = slider.value;
+        // Update the dynamic background fill
+        slider.style.background = `linear-gradient(to right, #60a5fa ${value}%, #60a5fa ${value}%, #d1d5db ${value}%, #d1d5db 100%)`;
+        if (value == 100) {
+          slider.classList.add('completed');
+          sliderStatus.textContent = 'Confirmed!';
+          sliderStatus.classList.remove('text-gray-500');
+          sliderStatus.classList.add('text-green-500');
+          setTimeout(() => {
+            slider.value = 0;
+            slider.classList.remove('completed');
+            sliderStatus.textContent = 'Slide to confirm';
+            sliderStatus.classList.add('text-gray-500');
+            sliderStatus.classList.remove('text-green-500');
+            slider.style.background = `linear-gradient(to right, #60a5fa 0%, #60a5fa 0%, #d1d5db 0%, #d1d5db 100%)`;
+          }, 1000);
+        } else {
+          slider.classList.remove('completed');
+          sliderStatus.textContent = 'Slide to confirm';
+          sliderStatus.classList.add('text-gray-500');
+          sliderStatus.classList.remove('text-green-500');
+        }
+      });
+    </script>
+  </body>
+</html>
