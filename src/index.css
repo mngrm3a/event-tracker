@@ -1,1 +1,9 @@
 @import 'tailwindcss';
+
+body {
+  @apply bg-gray-100 text-gray-900 flex flex-col items-center justify-between h-screen overflow-hidden;
+}
+
+main {
+  @apply w-full max-w-[480px] mx-auto flex flex-col h-screen;
+}
