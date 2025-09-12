@@ -1,5 +1,11 @@
+import { CurrentDateProvider } from '@/providers/CurrentDateProvider';
+
 function App() {
-  return <></>;
+  return (
+    <CurrentDateProvider>
+      <></>
+    </CurrentDateProvider>
+  );
 }
 
 export default App;
