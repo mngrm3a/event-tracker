@@ -17,7 +17,12 @@ export default App;
 
 const AppWithContext = () => {
   const currentDate = useCurrentDate();
-  const { isReady, chartData } = useStore();
+  const { isReady, chartData, saveEvent } = useStore();
+
+  const handleOnSwipeComplete = () => {
+    saveEvent(new Date(), 'default');
+  };
+
   return (
     <StackLayout>
       <></>
@@ -26,7 +31,7 @@ const AppWithContext = () => {
         isReady={isReady}
         chartData={chartData}
       />
-      <SliderButton delay={1500} />
+      <SliderButton delay={1500} onSlideComplete={handleOnSwipeComplete} />
     </StackLayout>
   );
 };
