@@ -1,3 +1,4 @@
+import { SliderButton } from '@/components/SliderButton';
 import { StackLayout } from '@/components/StackLayout';
 import { CurrentDateProvider } from '@/providers/CurrentDateProvider';
 import { StoreProvider } from '@/providers/StoreProvider';
@@ -9,7 +10,7 @@ function App() {
         <StackLayout>
           <></>
           <></>
-          <></>
+          <SliderButton delay={1500} />
         </StackLayout>
       </StoreProvider>
     </CurrentDateProvider>

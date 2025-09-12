@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+.slider {
+  @apply appearance-none outline-none cursor-pointer border-2 border-blue-100 bg-sky-50 w-full h-[64px] rounded-full;
+}
+
+.slider::-webkit-slider-thumb {
+  @apply appearance-none w-64 h-18 bg-sky-100 border-4 border-blue-300 rounded-full shadow-md;
+}
+
+.slider::-moz-range-thumb {
+  @apply appearance-none w-64 h-18 bg-white border-4 border-blue-400 rounded-full shadow-md;
+}
+
+.completed::-webkit-slider-thumb {
+  @apply bg-lime-50 border-lime-500;
+}
+
+.completed::-moz-range-thumb {
+  @apply bg-lime-50 border-lime-500;
+}
