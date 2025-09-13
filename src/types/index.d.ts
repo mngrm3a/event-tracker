@@ -1,2 +1,2 @@
-export * from '@/types/ChartDataTypes';
+export * from '@/types/CountsByPeriodTypes';
 export * from '@/types/FixedArrayLength';

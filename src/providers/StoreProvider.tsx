@@ -2,18 +2,20 @@ import { StoreContext } from '@/context/StoreContext';
 import { useCurrentDate } from '@/hooks/useCurrentDate';
 import type { EventData } from '@/providers/StoreProvider.types';
 import {
-  computeChartData,
+  computeCountsByPeriod,
   getEventsUpToDateInYear,
 } from '@/providers/StoreProvider.utils';
-import { createChartData } from '@/utils';
-import type { ChartData } from '@/types';
+import { createCountsByPeriod } from '@/utils';
+import type { CountsByPeriod } from '@/types';
 import { type ReactNode, useState, useEffect, useCallback } from 'react';
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [db, setDb] = useState<IDBDatabase | null>(null);
-  const [chartData, setChartData] = useState<ChartData>(createChartData());
+  const [countsByPeriod, setCountsByPeriod] = useState<CountsByPeriod>(
+    createCountsByPeriod(),
+  );
   const [isReady, setIsReady] = useState(false);
   const currentDate = useCurrentDate();
 
@@ -76,7 +78,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
     getEventsUpToDateInYear(db, currentDate)
       .then((events) => {
-        setChartData(computeChartData(events, currentDate));
+        setCountsByPeriod(computeCountsByPeriod(events, currentDate));
       })
       .catch((err) => {
         throw new Error(`Failed to load events: ${err.message}`);
@@ -105,11 +107,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           request.onerror = () => reject(request.error);
         });
 
-        /* TODO: optimise by just adding the new event to chartData if `date`
-         * equals `lastUpdated` in `chartData`
+        /* TODO: optimise by just adding the new event to countsByPeriod if `date`
+         * equals `lastUpdated` in `CountsByPeriod`
          */
         const events = await getEventsUpToDateInYear(db, date);
-        setChartData(computeChartData(events, date));
+        setCountsByPeriod(computeCountsByPeriod(events, date));
       } catch (err) {
         throw new Error(`Failed to save event: ${(err as Error).message}`);
       }
@@ -118,7 +120,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   return (
-    <StoreContext.Provider value={{ isReady, chartData, saveEvent }}>
+    <StoreContext.Provider
+      value={{ isReady, countsByPeriod: countsByPeriod, saveEvent }}
+    >
       {children}
     </StoreContext.Provider>
   );

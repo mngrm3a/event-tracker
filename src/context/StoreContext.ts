@@ -1,9 +1,9 @@
-import type { ChartData } from '@/types';
+import type { CountsByPeriod } from '@/types';
 import { createContext } from 'react';
 
 export interface StoreContextType {
   isReady: boolean;
-  chartData: ChartData;
+  countsByPeriod: CountsByPeriod;
   saveEvent: (date: Date, typ: string) => void;
 }
 

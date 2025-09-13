@@ -1,4 +1,4 @@
-export type ChartData = {
+export type CountsByPeriod = {
   todayData: number;
   hourData: HourData;
   weekData: WeekData;

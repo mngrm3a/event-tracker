@@ -1,7 +1,7 @@
-import type { ChartData } from '@/types/ChartDataTypes';
+import type { CountsByPeriod } from '@/types/CountsByPeriodTypes';
 import type { FixedLengthArray } from '@/types/FixedLengthArray';
 
-export function createChartData(): ChartData {
+export function createCountsByPeriod(): CountsByPeriod {
   return {
     todayData: 0,
     hourData: createFixedArray(24, 0),

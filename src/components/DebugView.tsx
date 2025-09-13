@@ -1,14 +1,14 @@
-import type { ChartData } from '@/types';
+import type { CountsByPeriod } from '@/types';
 
 export interface DebugViewProps {
   currentDate: Date;
   isReady: boolean;
-  chartData: ChartData;
+  countsByPeriod: CountsByPeriod;
 }
 export const DebugView = ({
   currentDate,
   isReady,
-  chartData,
+  countsByPeriod,
 }: DebugViewProps) => {
   return (
     <div className="block">
@@ -18,13 +18,16 @@ export const DebugView = ({
           data={currentDate.toLocaleDateString()}
         ></DisplayText>
         <DisplayText label="Ready" data={isReady}></DisplayText>
-        <DisplayText label="Today" data={chartData.todayData}></DisplayText>
+        <DisplayText
+          label="Today"
+          data={countsByPeriod.todayData}
+        ></DisplayText>
       </div>
       <div className="grid grid-cols-4 gap-4">
-        <DisplayList label="Hour" data={chartData.hourData} />
-        <DisplayList label="Week" data={chartData.weekData} />
-        <DisplayList label="Month" data={chartData.monthData} />
-        <DisplayList label="Year" data={chartData.yearData} />
+        <DisplayList label="Hour" data={countsByPeriod.hourData} />
+        <DisplayList label="Week" data={countsByPeriod.weekData} />
+        <DisplayList label="Month" data={countsByPeriod.monthData} />
+        <DisplayList label="Year" data={countsByPeriod.yearData} />
       </div>
     </div>
   );

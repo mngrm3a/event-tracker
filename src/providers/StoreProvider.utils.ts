@@ -1,6 +1,6 @@
 import type { EventData } from '@/providers/StoreProvider.types';
-import type { ChartData } from '@/types';
-import { createChartData } from '@/utils';
+import type { CountsByPeriod } from '@/types';
+import { createCountsByPeriod } from '@/utils';
 
 /**
  * Fetch all events from IndexedDB that belong to the same year
@@ -55,11 +55,11 @@ export function getEventsUpToDateInYear(
   });
 }
 
-export function computeChartData(
+export function computeCountsByPeriod(
   events: EventData[],
   dateTime: Date,
-): ChartData {
-  const chartData = createChartData();
+): CountsByPeriod {
+  const countsByPeriod = createCountsByPeriod();
   const date = dateTime.getDate();
   const weekStart = getMonday(dateTime);
   const month = dateTime.getMonth();
@@ -75,32 +75,32 @@ export function computeChartData(
       eDate.getMonth() === month &&
       eDate.getFullYear() === year
     ) {
-      chartData.hourData[eHour]++;
+      countsByPeriod.hourData[eHour]++;
     }
 
     // Week
     if (eDate >= weekStart && eDate <= dateTime) {
       const dayOffset = (eDate.getDay() + 6) % 7; // Monday=0
-      chartData.weekData[dayOffset]++;
+      countsByPeriod.weekData[dayOffset]++;
     }
 
     // Month
     if (eDate.getMonth() === month && eDate.getFullYear() === year) {
-      chartData.monthData[eDate.getDate() - 1]++;
+      countsByPeriod.monthData[eDate.getDate() - 1]++;
     }
 
     // Year
     if (eDate.getFullYear() === year) {
-      chartData.yearData[eDate.getMonth()]++;
+      countsByPeriod.yearData[eDate.getMonth()]++;
     }
   }
 
-  chartData.todayData = chartData.hourData.reduce(
+  countsByPeriod.todayData = countsByPeriod.hourData.reduce(
     (a: number, b: number) => a + b,
     0,
   );
 
-  return chartData;
+  return countsByPeriod;
 }
 
 function getMonday(date: Date): Date {

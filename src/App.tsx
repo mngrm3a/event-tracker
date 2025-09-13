@@ -17,7 +17,7 @@ export default App;
 
 const AppWithContext = () => {
   const currentDate = useCurrentDate();
-  const { isReady, chartData, saveEvent } = useStore();
+  const { isReady, countsByPeriod, saveEvent } = useStore();
 
   const handleOnSwipeComplete = () => {
     saveEvent(new Date(), 'default');
@@ -29,7 +29,7 @@ const AppWithContext = () => {
       <DebugView
         currentDate={currentDate}
         isReady={isReady}
-        chartData={chartData}
+        countsByPeriod={countsByPeriod}
       />
       <SliderButton delay={1500} onSlideComplete={handleOnSwipeComplete} />
     </StackLayout>
