@@ -10,6 +10,7 @@ interface StackLayoutProps {
 
 export const StackLayout: React.FC<StackLayoutProps> = ({
   children,
+  // TODO: remove this
   debug,
 }) => {
   if (React.Children.count(children) !== 3) {

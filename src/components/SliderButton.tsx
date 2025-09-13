@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import styles from '@/components/SliderButton.module.css';
+import styles from './SliderButton.module.css';
+import { clsx } from 'clsx';
 
 export type SliderButtonProps = {
   onSlideComplete?: () => void;
@@ -46,7 +47,11 @@ export const SliderButton = ({ onSlideComplete, delay }: SliderButtonProps) => {
       onInput={handleInput}
       onPointerUp={handlePointerUp}
       disabled={isResetting}
-      className={`${styles.slider} ${completed ? styles.completed : ''}`}
+      className={clsx(
+        styles['slider-track'],
+        styles['slider-thumb'],
+        completed && styles['slider-thumb-complete'],
+      )}
     />
   );
 };

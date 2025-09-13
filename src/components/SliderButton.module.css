@@ -1,21 +1,23 @@
-@import 'tailwindcss';
+@reference '@/index.css';
 
-.slider {
-  @apply appearance-none outline-none cursor-pointer border-2 border-blue-100 bg-sky-50 w-full h-[64px] rounded-full;
-}
+@layer components {
+  .slider-track {
+    @apply appearance-none outline-none cursor-pointer h-[64px] border-secondary bg-secondary-light w-full border-2 rounded-full;
+  }
 
-.slider::-webkit-slider-thumb {
-  @apply appearance-none w-64 h-18 bg-sky-100 border-4 border-blue-300 rounded-full shadow-md;
-}
+  .slider-thumb::-webkit-slider-thumb {
+    @apply appearance-none w-64 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md;
+  }
 
-.slider::-moz-range-thumb {
-  @apply appearance-none w-64 h-18 bg-white border-4 border-blue-400 rounded-full shadow-md;
-}
+  .slider-thumb::-moz-range-thumb {
+    @apply appearance-none w-64 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md;
+  }
 
-.completed::-webkit-slider-thumb {
-  @apply bg-lime-50 border-lime-500;
-}
+  .slider-thumb-complete::-webkit-slider-thumb {
+    @apply bg-success-light border-success;
+  }
 
-.completed::-moz-range-thumb {
-  @apply bg-lime-50 border-lime-500;
+  .slider-thumb-complete::-moz-range-thumb {
+    @apply bg-success-light border-success;
+  }
 }
