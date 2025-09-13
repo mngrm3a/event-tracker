@@ -1,1 +1,12 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-base: white;
+  --color-primary: var(--color-blue-300);
+  --color-primary-light: var(--color-sky-100);
+  --color-secondary: var(--color-blue-100);
+  --color-secondary-light: var(--color-sky-50);
+  --color-success: var(--color-lime-500);
+  --color-success-light: var(--color-lime-50);
+  --color-neutral: var(--color-gray-900);
+}

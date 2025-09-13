@@ -19,5 +19,6 @@
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "tailwindCSS.experimental.classRegex": [
     ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+  ],
+  "tailwindCSS.experimental.configFile": "src/index.css"
 }
