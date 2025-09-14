@@ -46,7 +46,7 @@ export const SliderButton = ({
     <div className="relative flex flex-1 w-full h-full">
       <span
         className={clsx(
-          'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-mono font-bold text-[4rem] transition-colors duration-1000',
+          'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-bold text-[4rem] text-shadow-lg transition-colors duration-1000',
           completed ? 'text-success' : 'text-primary',
         )}
       >
