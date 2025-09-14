@@ -6,11 +6,11 @@
   }
 
   .slider-thumb::-webkit-slider-thumb {
-    @apply appearance-none w-64 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md;
+    @apply appearance-none w-74 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md transition-colors duration-1000;
   }
 
   .slider-thumb::-moz-range-thumb {
-    @apply appearance-none w-64 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md;
+    @apply appearance-none w-74 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md transition-colors duration-1000;
   }
 
   .slider-thumb-complete::-webkit-slider-thumb {

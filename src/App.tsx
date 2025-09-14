@@ -31,7 +31,11 @@ const AppWithContext = () => {
         isReady={isReady}
         countsByPeriod={countsByPeriod}
       />
-      <SliderButton delay={1500} onSlideComplete={handleOnSwipeComplete} />
+      <SliderButton
+        counter={countsByPeriod.todayData}
+        onSlideComplete={handleOnSwipeComplete}
+        delay={0}
+      />
     </StackLayout>
   );
 };
