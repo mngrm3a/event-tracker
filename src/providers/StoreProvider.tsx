@@ -4,10 +4,17 @@ import type { EventData } from '@/providers/StoreProvider.types';
 import {
   computeCountsByPeriod,
   getEventsUpToDateInYear,
+  updateCountsByPeriod,
 } from '@/providers/StoreProvider.utils';
 import { createCountsByPeriod } from '@/utils';
 import type { CountsByPeriod } from '@/types';
-import { type ReactNode, useState, useEffect, useCallback } from 'react';
+import {
+  type ReactNode,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -18,8 +25,38 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   );
   const [isReady, setIsReady] = useState(false);
   const currentDate = useCurrentDate();
+  const jobQueue = useRef<Job[]>([]);
+  const isProcessingQueue = useRef(false);
 
-  // Open IndexedDB and create index if needed
+  // Sequentially process jobQueue; each job updates countsByPeriod safely
+  const processJobQueue = useCallback(async () => {
+    if (isProcessingQueue.current) return;
+    isProcessingQueue.current = true;
+
+    while (jobQueue.current.length > 0) {
+      const job = jobQueue.current.shift();
+      if (!job) continue;
+
+      try {
+        if (job.type === 'merge') {
+          setCountsByPeriod((prev) =>
+            updateCountsByPeriod(structuredClone(prev), currentDate, [
+              job.payload,
+            ]),
+          );
+        } else if (job.type === 'reload' && db) {
+          const events = await getEventsUpToDateInYear(db, job.payload);
+          setCountsByPeriod(computeCountsByPeriod(job.payload, events));
+        }
+      } catch (err) {
+        throw new Error(`Failed to process job: ${err}`);
+      }
+    }
+
+    isProcessingQueue.current = false;
+  }, [currentDate, db]);
+
+  // Open IndexedDB and create store/index
   useEffect(() => {
     let database: IDBDatabase | null = null;
     const request = indexedDB.open('EventsDB', 1);
@@ -52,7 +89,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
     request.onsuccess = (e) => {
       database = (e.target as IDBOpenDBRequest).result;
-
       database.onerror = (event) => {
         const errorEvent = event as Event & { target: { error: DOMException } };
         throw new Error(`Database error: ${errorEvent.target.error.message}`);
@@ -62,7 +98,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       setIsReady(true);
     };
 
-    // Cleanup function that runs when component unmounts
     return () => {
       if (database) {
         database.close();
@@ -72,34 +107,26 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, []);
 
-  // Reload chart data whenever db or date changes
+  // Reload counts on db or currentDate change
   useEffect(() => {
     if (!db) return;
+    jobQueue.current.push({ type: 'reload', payload: currentDate });
+    void processJobQueue();
+  }, [db, currentDate, processJobQueue]);
 
-    getEventsUpToDateInYear(db, currentDate)
-      .then((events) => {
-        setCountsByPeriod(computeCountsByPeriod(events, currentDate));
-      })
-      .catch((err) => {
-        throw new Error(`Failed to load events: ${err.message}`);
-      });
-  }, [db, currentDate]);
-
-  // Save a new event and recompute chart data
+  // Save a new event and enqueue the appropriate job
   const saveEvent = useCallback(
     async (date: Date, typ: string) => {
-      if (!db) {
-        throw new Error('Database not initialized');
-      }
+      if (!db) throw new Error('Database not initialized');
+
+      const newEvent: Omit<EventData, 'id'> = {
+        timestamp: date.getTime(),
+        type: typ,
+      };
 
       try {
         const tx = db.transaction('events', 'readwrite');
         const store = tx.objectStore('events');
-
-        const newEvent: Omit<EventData, 'id'> = {
-          timestamp: date.getTime(),
-          type: typ,
-        };
 
         await new Promise<void>((resolve, reject) => {
           const request = store.add(newEvent);
@@ -107,23 +134,41 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
           request.onerror = () => reject(request.error);
         });
 
-        /* TODO: optimise by just adding the new event to countsByPeriod if `date`
-         * equals `lastUpdated` in `CountsByPeriod`
-         */
-        const events = await getEventsUpToDateInYear(db, date);
-        setCountsByPeriod(computeCountsByPeriod(events, date));
+        await new Promise<void>((resolve, reject) => {
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+
+        // Decide job type based on date
+        const isCurrentDate =
+          date.getFullYear() === currentDate.getFullYear() &&
+          date.getMonth() === currentDate.getMonth() &&
+          date.getDate() === currentDate.getDate();
+
+        if (isCurrentDate) {
+          jobQueue.current.push({
+            type: 'merge',
+            payload: { ...newEvent, id: 0 },
+          });
+        } else {
+          jobQueue.current.push({ type: 'reload', payload: date });
+        }
+
+        void processJobQueue();
       } catch (err) {
         throw new Error(`Failed to save event: ${(err as Error).message}`);
       }
     },
-    [db],
+    [db, currentDate, processJobQueue],
   );
 
   return (
-    <StoreContext.Provider
-      value={{ isReady, countsByPeriod: countsByPeriod, saveEvent }}
-    >
+    <StoreContext.Provider value={{ isReady, countsByPeriod, saveEvent }}>
       {children}
     </StoreContext.Provider>
   );
 };
+
+type Job =
+  | { type: 'merge'; payload: EventData }
+  | { type: 'reload'; payload: Date };

@@ -56,10 +56,19 @@ export function getEventsUpToDateInYear(
 }
 
 export function computeCountsByPeriod(
-  events: EventData[],
   dateTime: Date,
+  events: EventData[],
 ): CountsByPeriod {
   const countsByPeriod = createCountsByPeriod();
+  updateCountsByPeriod(countsByPeriod, dateTime, events);
+  return countsByPeriod;
+}
+
+export function updateCountsByPeriod(
+  countsByPeriod: CountsByPeriod,
+  dateTime: Date,
+  events: EventData[],
+):CountsByPeriod {
   const date = dateTime.getDate();
   const weekStart = getMonday(dateTime);
   const month = dateTime.getMonth();
