@@ -2,15 +2,15 @@
 
 @layer components {
   .slider-track {
-    @apply appearance-none outline-none cursor-pointer h-[64px] border-secondary bg-secondary-light w-full border-2 rounded-full;
+    @apply appearance-none outline-none cursor-pointer pointer-events-none h-[64px] border-secondary bg-secondary-light w-full border-2 rounded-full;
   }
 
   .slider-thumb::-webkit-slider-thumb {
-    @apply appearance-none w-74 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md transition-colors duration-1000;
+    @apply appearance-none pointer-events-auto w-74 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md transition-colors duration-250;
   }
 
   .slider-thumb::-moz-range-thumb {
-    @apply appearance-none w-74 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md transition-colors duration-1000;
+    @apply appearance-none pointer-events-auto w-74 h-18 bg-primary-light border-primary border-4 rounded-full shadow-md transition-colors duration-250;
   }
 
   .slider-thumb-complete::-webkit-slider-thumb {
@@ -19,5 +19,13 @@
 
   .slider-thumb-complete::-moz-range-thumb {
     @apply bg-success-light border-success;
+  }
+
+  .slider-thumb-resetting::-webkit-slider-thumb {
+    @apply pointer-events-none;
+  }
+
+  .slider-thumb-resetting::-moz-range-thumb {
+    @apply pointer-events-none;
   }
 }
