@@ -1,16 +1,32 @@
 import type { CountsByPeriod } from '@/types';
+import { useEffect, useState, type ReactNode } from 'react';
 
-export interface DebugViewProps {
+export interface DebugWrapperProps {
+  children: ReactNode;
   currentDate: Date;
   isReady: boolean;
   countsByPeriod: CountsByPeriod;
 }
-export const DebugView = ({
+export const DebugWrapper = ({
+  children,
   currentDate,
   isReady,
   countsByPeriod,
-}: DebugViewProps) => {
-  return (
+}: DebugWrapperProps) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+        setIsVisible((v) => !v);
+      }
+    };
+
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
+  return isVisible ? (
     <div className="block">
       <div className="grid grid-cols-3 gap-4">
         <DisplayText
@@ -30,6 +46,8 @@ export const DebugView = ({
         <DisplayList label="Year" data={countsByPeriod.yearData} />
       </div>
     </div>
+  ) : (
+    children
   );
 };
 

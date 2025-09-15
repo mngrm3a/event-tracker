@@ -1,4 +1,4 @@
-import { DebugView } from '@/components/DebugView';
+import { DebugWrapper } from '@/components/DebugWrapper';
 import { SliderButton } from '@/components/SliderButton';
 import { StackLayout } from '@/components/StackLayout';
 import { useCurrentDate } from '@/hooks/useCurrentDate';
@@ -28,25 +28,27 @@ const AppWithContext = () => {
 
   return (
     <LoadingWrapper status={isReady}>
-      <StackLayout>
-        <DebugView
-          currentDate={currentDate}
-          isReady={isReady}
-          countsByPeriod={countsByPeriod}
-        />
-        <TodayView
-          data={countsByPeriod.hourData}
-          barColor1={oklchSetAlpha(themeColors['primary'], 0.6)}
-          barColor2={oklchSetAlpha(themeColors['primary-light'], 0.6)}
-          labelColor={themeColors['neutral']}
-          labelSize={12}
-        />
-        <SliderButton
-          counter={countsByPeriod.todayData}
-          onSlideComplete={handleOnSwipeComplete}
-          delay={500}
-        />
-      </StackLayout>
+      <DebugWrapper
+        currentDate={currentDate}
+        isReady={isReady}
+        countsByPeriod={countsByPeriod}
+      >
+        <StackLayout>
+          <></>
+          <TodayView
+            data={countsByPeriod.hourData}
+            barColor1={oklchSetAlpha(themeColors['primary'], 0.6)}
+            barColor2={oklchSetAlpha(themeColors['primary-light'], 0.6)}
+            labelColor={themeColors['neutral']}
+            labelSize={12}
+          />
+          <SliderButton
+            counter={countsByPeriod.todayData}
+            onSlideComplete={handleOnSwipeComplete}
+            delay={500}
+          />
+        </StackLayout>
+      </DebugWrapper>
     </LoadingWrapper>
   );
 };
