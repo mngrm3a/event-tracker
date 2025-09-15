@@ -1,13 +1,15 @@
 import { StoreContext } from '@/context/StoreContext';
 import { useToday } from '@/hooks/useToday';
-import type { EventData } from '@/providers/StoreProvider.types';
+import type { EventData, Job } from '@/providers/StoreProvider.types';
 import {
-  computeCountsByPeriod,
-  getEventsUpToDateInYear,
+  createCountsByPeriod,
   updateCountsByPeriod,
+  getEndOfDay,
+  getStartOfYear,
 } from '@/providers/StoreProvider.utils';
-import { areDatesEqual, createCountsByPeriod } from '@/utils';
+
 import type { CountsByPeriod } from '@/types';
+import { areDatesEqual } from '@/utils';
 import {
   type ReactNode,
   useState,
@@ -20,39 +22,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [db, setDb] = useState<IDBDatabase | null>(null);
+  const today = useToday();
   const [countsByPeriod, setCountsByPeriod] = useState<CountsByPeriod>(
     createCountsByPeriod(),
   );
-  const [isReady, setIsReady] = useState(false);
-  const today = useToday();
   const jobQueue = useRef<Job[]>([]);
   const isProcessingQueue = useRef(false);
-
-  // Sequentially process jobQueue; each job updates countsByPeriod safely
-  const processJobQueue = useCallback(async () => {
-    if (isProcessingQueue.current) return;
-    isProcessingQueue.current = true;
-
-    while (jobQueue.current.length > 0) {
-      const job = jobQueue.current.shift();
-      if (!job) continue;
-
-      try {
-        if (job.type === 'merge') {
-          setCountsByPeriod((prev) =>
-            updateCountsByPeriod(structuredClone(prev), today, [job.payload]),
-          );
-        } else if (job.type === 'reload' && db) {
-          const events = await getEventsUpToDateInYear(db, job.payload);
-          setCountsByPeriod(computeCountsByPeriod(job.payload, events));
-        }
-      } catch (err) {
-        throw new Error(`Failed to process job: ${err}`);
-      }
-    }
-
-    isProcessingQueue.current = false;
-  }, [today, db]);
 
   // Open IndexedDB and create store/index
   useEffect(() => {
@@ -91,19 +66,81 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         const errorEvent = event as Event & { target: { error: DOMException } };
         throw new Error(`Database error: ${errorEvent.target.error.message}`);
       };
-
       setDb(database);
-      setIsReady(true);
     };
 
     return () => {
       if (database) {
         database.close();
         setDb(null);
-        setIsReady(false);
       }
     };
   }, []);
+
+  // Load all events within the given year up until the given date
+  const loadEvents = useCallback(
+    async (until: Date): Promise<EventData[]> => {
+      if (!db) return [];
+
+      return new Promise((resolve, reject) => {
+        const untilAtStartOfYear = getStartOfYear(until).getTime();
+        const untilAtEndOfDay = getEndOfDay(until).getTime();
+
+        const tx = db.transaction('events', 'readonly');
+        const store = tx.objectStore('events');
+        const index = store.index('timestamp');
+        const range = IDBKeyRange.bound(untilAtStartOfYear, untilAtEndOfDay);
+        const request = index.openCursor(range);
+        const results: EventData[] = [];
+
+        request.onsuccess = (event) => {
+          const cursor = (event.target as IDBRequest).result;
+          if (cursor) {
+            results.push(cursor.value);
+            cursor.continue();
+          } else {
+            resolve(results);
+          }
+        };
+
+        request.onerror = (e) => {
+          reject(e);
+        };
+      });
+    },
+    [db],
+  );
+
+  // Sequentially process jobQueue; each job updates countsByPeriod safely
+  const processJobQueue = useCallback(async () => {
+    if (isProcessingQueue.current) return;
+    isProcessingQueue.current = true;
+
+    while (jobQueue.current.length > 0) {
+      const job = jobQueue.current.shift();
+      if (!job) continue;
+
+      try {
+        if (job.type === 'merge') {
+          setCountsByPeriod((prev) =>
+            updateCountsByPeriod(structuredClone(prev), today, [job.payload]),
+          );
+        } else if (job.type === 'reload' && db) {
+          const events = await loadEvents(job.payload);
+          const newCountsByPeriod = updateCountsByPeriod(
+            createCountsByPeriod(),
+            job.payload,
+            events,
+          );
+          setCountsByPeriod(newCountsByPeriod);
+        }
+      } catch (err) {
+        throw new Error(`Failed to process job: ${err}`);
+      }
+    }
+
+    isProcessingQueue.current = false;
+  }, [db, today, loadEvents]);
 
   // Reload counts on db or today change
   useEffect(() => {
@@ -156,12 +193,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   return (
-    <StoreContext.Provider value={{ isReady, countsByPeriod, saveEvent }}>
+    <StoreContext.Provider value={{ isReady: !!db, countsByPeriod, saveEvent }}>
       {children}
     </StoreContext.Provider>
   );
 };
-
-type Job =
-  | { type: 'merge'; payload: EventData }
-  | { type: 'reload'; payload: Date };
