@@ -6,7 +6,7 @@ import {
   getEventsUpToDateInYear,
   updateCountsByPeriod,
 } from '@/providers/StoreProvider.utils';
-import { createCountsByPeriod } from '@/utils';
+import { areDatesEqual, createCountsByPeriod } from '@/utils';
 import type { CountsByPeriod } from '@/types';
 import {
   type ReactNode,
@@ -138,12 +138,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         });
 
         // Decide job type based on date
-        const isToday =
-          date.getFullYear() === today.getFullYear() &&
-          date.getMonth() === today.getMonth() &&
-          date.getDate() === today.getDate();
-
-        if (isToday) {
+        if (areDatesEqual(today, date)) {
           jobQueue.current.push({
             type: 'merge',
             payload: { ...newEvent, id: 0 },

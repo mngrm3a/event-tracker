@@ -1,4 +1,5 @@
 import { TodayContext } from '@/context/TodayContext';
+import { areDatesEqual } from '@/utils';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 
 interface TodayProps {
@@ -15,11 +16,7 @@ export const TodayProvider = ({ resolution, children }: TodayProps) => {
     const checkDateChange = () => {
       const newToday = todayAtMidnight();
 
-      if (
-        newToday.getFullYear() !== todayRef.current.getFullYear() ||
-        newToday.getMonth() !== todayRef.current.getMonth() ||
-        newToday.getDate() !== todayRef.current.getDate()
-      ) {
+      if (!areDatesEqual(todayRef.current, newToday)) {
         todayRef.current = newToday;
         setToday(newToday);
       }
