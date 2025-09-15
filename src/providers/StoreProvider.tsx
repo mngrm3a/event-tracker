@@ -151,12 +151,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
   // Save a new event and enqueue the appropriate job
   const saveEvent = useCallback(
-    async (date: Date, typ: string) => {
+    async (date: Date) => {
       if (!db) throw new Error('Database not initialized');
 
       const newEvent: Omit<EventData, 'id'> = {
         timestamp: date.getTime(),
-        type: typ,
       };
 
       try {

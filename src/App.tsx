@@ -23,7 +23,7 @@ const AppWithContext = () => {
   const { isReady, countsByPeriod, saveEvent } = useStore();
 
   const handleOnSwipeComplete = () => {
-    saveEvent(new Date(), 'default');
+    saveEvent(new Date());
   };
 
   return (
