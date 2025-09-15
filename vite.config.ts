@@ -6,13 +6,16 @@ import { themeExtractorPlugin } from './vite-plugins/vite-plugin-theme';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(),
+  plugins: [
+    react(),
+    tailwindcss(),
     themeExtractorPlugin({
       cssPath: 'src/index.css',
       outFile: 'src/themeColors.ts',
-      resolve: true
-    })
+      resolve: true,
+    }),
   ],
+  base: '/event-tracker/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'), // @ -> src
