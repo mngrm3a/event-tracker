@@ -1,24 +1,34 @@
 import { CurrentDateContext } from '@/context/CurrentDateContext';
-import React, { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 
-export const CurrentDateProvider: React.FC<{ children: ReactNode }> = ({
+interface CurrentDateProps {
+  resolution: number;
+  children?: ReactNode;
+}
+
+export const CurrentDateProvider = ({
+  resolution,
   children,
-}) => {
-  const initialDate = new Date().toISOString().slice(0, 10);
-  const [currentDate, setCurrentDate] = useState(initialDate);
-  const prevDateRef = useRef(initialDate);
+}: CurrentDateProps) => {
+  const initialDate = todayAtMidnight();
+  const [today, setToday] = useState(initialDate);
+  const todayRef = useRef(initialDate);
 
   useEffect(() => {
     const checkDateChange = () => {
-      const newDate = new Date().toISOString().slice(0, 10);
-      if (newDate !== prevDateRef.current) {
-        prevDateRef.current = newDate;
-        setCurrentDate(newDate);
+      const newToday = todayAtMidnight();
+
+      if (
+        newToday.getFullYear() !== todayRef.current.getFullYear() ||
+        newToday.getMonth() !== todayRef.current.getMonth() ||
+        newToday.getDate() !== todayRef.current.getDate()
+      ) {
+        todayRef.current = newToday;
+        setToday(newToday);
       }
     };
 
-    // Poll every 60 seconds
-    const interval = setInterval(checkDateChange, 60000);
+    const interval = setInterval(checkDateChange, resolution);
 
     // Handle visibility changes for reliability in browsers/PWAs
     const handleVisibilityChange = () => {
@@ -45,11 +55,16 @@ export const CurrentDateProvider: React.FC<{ children: ReactNode }> = ({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleAppStateChange);
     };
-  }, []);
+  }, [resolution]);
 
   return (
-    <CurrentDateContext.Provider value={new Date(currentDate)}>
+    <CurrentDateContext.Provider value={today}>
       {children}
     </CurrentDateContext.Provider>
   );
 };
+
+function todayAtMidnight() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}

@@ -10,7 +10,7 @@ import { TodayView } from '@/components/TodayView';
 import { LoadingWrapper } from '@/components/LoadingWrapper';
 
 const App = () => (
-  <CurrentDateProvider>
+  <CurrentDateProvider resolution={60000}>
     <StoreProvider>
       <AppWithContext />
     </StoreProvider>
