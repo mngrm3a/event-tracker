@@ -1,25 +1,25 @@
 import { DebugWrapper } from '@/components/DebugWrapper';
 import { SliderButton } from '@/components/SliderButton';
 import { StackLayout } from '@/components/StackLayout';
-import { useCurrentDate } from '@/hooks/useCurrentDate';
+import { useToday } from '@/hooks/useToday';
 import { useStore } from '@/hooks/useStore';
-import { CurrentDateProvider } from '@/providers/CurrentDateProvider';
+import { TodayProvider } from '@/providers/TodayProvider';
 import { StoreProvider } from '@/providers/StoreProvider';
 import { themeColors } from '@/themeColors';
 import { TodayView } from '@/components/TodayView';
 import { LoadingWrapper } from '@/components/LoadingWrapper';
 
 const App = () => (
-  <CurrentDateProvider resolution={60000}>
+  <TodayProvider resolution={60000}>
     <StoreProvider>
       <AppWithContext />
     </StoreProvider>
-  </CurrentDateProvider>
+  </TodayProvider>
 );
 export default App;
 
 const AppWithContext = () => {
-  const currentDate = useCurrentDate();
+  const today = useToday();
   const { isReady, countsByPeriod, saveEvent } = useStore();
 
   const handleOnSwipeComplete = () => {
@@ -29,7 +29,7 @@ const AppWithContext = () => {
   return (
     <LoadingWrapper status={isReady}>
       <DebugWrapper
-        currentDate={currentDate}
+        today={today}
         isReady={isReady}
         countsByPeriod={countsByPeriod}
       >

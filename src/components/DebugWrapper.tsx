@@ -3,13 +3,13 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 export interface DebugWrapperProps {
   children: ReactNode;
-  currentDate: Date;
+  today: Date;
   isReady: boolean;
   countsByPeriod: CountsByPeriod;
 }
 export const DebugWrapper = ({
   children,
-  currentDate,
+  today,
   isReady,
   countsByPeriod,
 }: DebugWrapperProps) => {
@@ -31,7 +31,7 @@ export const DebugWrapper = ({
       <div className="grid grid-cols-3 gap-4">
         <DisplayText
           label="Date"
-          data={currentDate.toLocaleDateString()}
+          data={today.toLocaleDateString()}
         ></DisplayText>
         <DisplayText label="Ready" data={isReady}></DisplayText>
         <DisplayText

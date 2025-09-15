@@ -1,15 +1,12 @@
-import { CurrentDateContext } from '@/context/CurrentDateContext';
+import { TodayContext } from '@/context/TodayContext';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 
-interface CurrentDateProps {
+interface TodayProps {
   resolution: number;
   children?: ReactNode;
 }
 
-export const CurrentDateProvider = ({
-  resolution,
-  children,
-}: CurrentDateProps) => {
+export const TodayProvider = ({ resolution, children }: TodayProps) => {
   const initialDate = todayAtMidnight();
   const [today, setToday] = useState(initialDate);
   const todayRef = useRef(initialDate);
@@ -58,9 +55,7 @@ export const CurrentDateProvider = ({
   }, [resolution]);
 
   return (
-    <CurrentDateContext.Provider value={today}>
-      {children}
-    </CurrentDateContext.Provider>
+    <TodayContext.Provider value={today}>{children}</TodayContext.Provider>
   );
 };
 

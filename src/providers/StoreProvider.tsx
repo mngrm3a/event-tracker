@@ -1,5 +1,5 @@
 import { StoreContext } from '@/context/StoreContext';
-import { useCurrentDate } from '@/hooks/useCurrentDate';
+import { useToday } from '@/hooks/useToday';
 import type { EventData } from '@/providers/StoreProvider.types';
 import {
   computeCountsByPeriod,
@@ -24,7 +24,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     createCountsByPeriod(),
   );
   const [isReady, setIsReady] = useState(false);
-  const currentDate = useCurrentDate();
+  const today = useToday();
   const jobQueue = useRef<Job[]>([]);
   const isProcessingQueue = useRef(false);
 
@@ -40,9 +40,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       try {
         if (job.type === 'merge') {
           setCountsByPeriod((prev) =>
-            updateCountsByPeriod(structuredClone(prev), currentDate, [
-              job.payload,
-            ]),
+            updateCountsByPeriod(structuredClone(prev), today, [job.payload]),
           );
         } else if (job.type === 'reload' && db) {
           const events = await getEventsUpToDateInYear(db, job.payload);
@@ -54,7 +52,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     isProcessingQueue.current = false;
-  }, [currentDate, db]);
+  }, [today, db]);
 
   // Open IndexedDB and create store/index
   useEffect(() => {
@@ -107,12 +105,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, []);
 
-  // Reload counts on db or currentDate change
+  // Reload counts on db or today change
   useEffect(() => {
     if (!db) return;
-    jobQueue.current.push({ type: 'reload', payload: currentDate });
+    jobQueue.current.push({ type: 'reload', payload: today });
     void processJobQueue();
-  }, [db, currentDate, processJobQueue]);
+  }, [db, today, processJobQueue]);
 
   // Save a new event and enqueue the appropriate job
   const saveEvent = useCallback(
@@ -140,12 +138,12 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         });
 
         // Decide job type based on date
-        const isCurrentDate =
-          date.getFullYear() === currentDate.getFullYear() &&
-          date.getMonth() === currentDate.getMonth() &&
-          date.getDate() === currentDate.getDate();
+        const isToday =
+          date.getFullYear() === today.getFullYear() &&
+          date.getMonth() === today.getMonth() &&
+          date.getDate() === today.getDate();
 
-        if (isCurrentDate) {
+        if (isToday) {
           jobQueue.current.push({
             type: 'merge',
             payload: { ...newEvent, id: 0 },
@@ -159,7 +157,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         throw new Error(`Failed to save event: ${(err as Error).message}`);
       }
     },
-    [db, currentDate, processJobQueue],
+    [db, today, processJobQueue],
   );
 
   return (
