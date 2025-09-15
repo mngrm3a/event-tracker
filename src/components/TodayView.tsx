@@ -1,16 +1,17 @@
 import type { HourData } from '@/types';
+import { createAlternatingArray } from '@/utils';
 import {
   ArcElement,
-  Legend,
   RadialLinearScale,
-  Chart as ChartJS,
-  type ChartData,
+  Chart,
   type ChartOptions,
+  type ChartData,
 } from 'chart.js';
+import { useMemo } from 'react';
 
 import { PolarArea } from 'react-chartjs-2';
 
-ChartJS.register(RadialLinearScale, ArcElement, Legend);
+Chart.register(RadialLinearScale, ArcElement);
 
 export interface TodayViewProps {
   data: HourData;
@@ -27,70 +28,49 @@ export const TodayView = ({
   labelSize,
   labelColor,
 }: TodayViewProps) => {
-  return (
-    <PolarArea
-      data={createChartData(data, barColor1, barColor2)}
-      options={createChartOptions(labelSize, labelColor)}
-    />
+  const chartData: ChartData<'polarArea'> = useMemo(
+    () => ({
+      labels: Array.from({ length: 24 }, (_, i) => `${(i + 12) % 24}`),
+      datasets: [
+        {
+          label: 'Hour Data',
+          data: [...data.slice(12), ...data.slice(0, 12)],
+          backgroundColor: createAlternatingArray(24, barColor1, barColor2),
+          borderWidth: 1,
+        },
+      ],
+    }),
+    [data, barColor1, barColor2],
   );
-};
-
-const hourLabels = Array.from({ length: 24 }, (_, i) => `${(i + 12) % 24}`);
-
-function createChartData(
-  hourData: HourData,
-  barColor1: string,
-  barColor2: string,
-): ChartData<'polarArea'> {
-  return {
-    labels: hourLabels,
-    datasets: [
-      {
-        label: 'Hour Data',
-        data: [...hourData.slice(12), ...hourData.slice(0, 12)],
-        backgroundColor: createAlternatingArray(24, barColor1, barColor2),
-        borderWidth: 1,
-      },
-    ],
-  };
-}
-
-function createChartOptions(
-  scaleLabelSize: number,
-  scaleLabelColor: string,
-): ChartOptions<'polarArea'> {
-  return {
-    maintainAspectRatio: false,
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        enabled: false,
-      },
-    },
-    scales: {
-      r: {
-        ticks: {
-          display: true,
+  const chartOptions: ChartOptions<'polarArea'> = useMemo(
+    () => ({
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false,
         },
-        pointLabels: {
-          display: true,
-          font: {
-            size: scaleLabelSize,
+        tooltip: {
+          enabled: false,
+        },
+      },
+      scales: {
+        r: {
+          ticks: {
+            display: true,
           },
-          color: scaleLabelColor,
+          pointLabels: {
+            display: true,
+            font: {
+              size: labelSize,
+            },
+            color: labelColor,
+          },
         },
       },
-    },
-  };
-}
+    }),
+    [labelSize, labelColor],
+  );
 
-function createAlternatingArray<T>(length: number, value1: T, value2: T): T[] {
-  const result: T[] = [];
-  for (let i = 0; i < length; i++) {
-    result.push(i % 2 === 0 ? value1 : value2);
-  }
-  return result;
-}
+  return <PolarArea data={chartData} options={chartOptions} />;
+};
