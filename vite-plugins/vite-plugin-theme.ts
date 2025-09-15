@@ -9,7 +9,6 @@ interface PluginOptions {
   resolve?: boolean;
 }
 
-// Recursive interface for nested Tailwind colors
 interface ColorValueMap {
   [key: string]: string | ColorValueMap;
 }
@@ -46,12 +45,23 @@ export function themeExtractorPlugin(options: PluginOptions): Plugin {
       atRule.walkDecls((decl: Declaration) => {
         if (decl.prop.startsWith('--color-')) {
           const name = decl.prop.replace('--color-', '');
-          themeColors[name] = options.resolve ? resolveColor(decl.value) : decl.value;
+          themeColors[name] = options.resolve
+            ? resolveColor(decl.value)
+            : decl.value;
         }
       });
     });
 
-    const tsContent = `export const themeColors = ${JSON.stringify(themeColors, null, 2)} as const;\n`;
+    /* make prettier happy:
+     * - replace double with single quotes
+     * - append comma to last element
+     */
+    const themeColorsStringified = JSON.stringify(themeColors, null, 2).replace(
+      /"|(\n})$/gm,
+      (_, p1) => (p1 ? ',\n}' : "'"),
+    );
+
+    const tsContent = `export const themeColors = ${themeColorsStringified} as const;\n`;
 
     fs.writeFileSync(options.outFile, tsContent);
     console.log(`Theme colors written to ${options.outFile}`);

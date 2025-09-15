@@ -68,7 +68,7 @@ export function updateCountsByPeriod(
   countsByPeriod: CountsByPeriod,
   dateTime: Date,
   events: EventData[],
-):CountsByPeriod {
+): CountsByPeriod {
   const date = dateTime.getDate();
   const weekStart = getMonday(dateTime);
   const month = dateTime.getMonth();
