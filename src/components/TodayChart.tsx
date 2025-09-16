@@ -34,11 +34,13 @@ export const TodayChart = ({ data }: TodayChartProps) => {
       maintainAspectRatio: false,
       responsive: true,
       plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          enabled: false,
+        legend: { display: false },
+        tooltip: { enabled: false },
+        datalabels: {
+          color: themeColors['neutral'],
+          anchor: 'end', // pushes label to outer radius
+          align: 'end', // aligns with end of segment
+          formatter: (value: number) => (value === 0 ? null : value), // hide 0
         },
       },
       scales: {

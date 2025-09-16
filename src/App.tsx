@@ -8,8 +8,9 @@ import { StoreProvider } from '@/providers/StoreProvider';
 import { TodayChart } from '@/components/TodayChart';
 import { LoadingWrapper } from '@/components/LoadingWrapper';
 import { ArcElement, Chart, RadialLinearScale } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-Chart.register(RadialLinearScale, ArcElement);
+Chart.register(RadialLinearScale, ArcElement, ChartDataLabels);
 
 const App = () => (
   <TodayProvider resolution={60000}>
