@@ -5,9 +5,11 @@ import { useToday } from '@/hooks/useToday';
 import { useStore } from '@/hooks/useStore';
 import { TodayProvider } from '@/providers/TodayProvider';
 import { StoreProvider } from '@/providers/StoreProvider';
-import { themeColors } from '@/themeColors';
-import { TodayView } from '@/components/TodayView';
+import { TodayChart } from '@/components/TodayChart';
 import { LoadingWrapper } from '@/components/LoadingWrapper';
+import { ArcElement, Chart, RadialLinearScale } from 'chart.js';
+
+Chart.register(RadialLinearScale, ArcElement);
 
 const App = () => (
   <TodayProvider resolution={60000}>
@@ -35,13 +37,7 @@ const AppWithContext = () => {
       >
         <StackLayout>
           <></>
-          <TodayView
-            data={countsByPeriod.hourData}
-            barColor1={oklchSetAlpha(themeColors['primary'], 0.6)}
-            barColor2={oklchSetAlpha(themeColors['primary-light'], 0.6)}
-            labelColor={themeColors['neutral']}
-            labelSize={12}
-          />
+          <TodayChart data={countsByPeriod.hourData} />
           <SliderButton
             counter={countsByPeriod.todayData}
             onSlideComplete={handleOnSwipeComplete}
@@ -52,17 +48,3 @@ const AppWithContext = () => {
     </LoadingWrapper>
   );
 };
-
-function oklchSetAlpha(color: string, alpha: number): string {
-  // Remove trailing spaces just in case
-  color = color.trim();
-
-  // If color already has a slash, replace alpha
-  if (color.includes('/')) {
-    return color.replace(/\/\s*[\d.]+/, `/ ${alpha}`);
-  }
-
-  // Insert alpha using the modern / <alpha> syntax
-  // e.g., "oklch(70.7% 0.165 254.624)" → "oklch(70.7% 0.165 254.624 / 0.5)"
-  return color.replace(/\)$/, ` / ${alpha})`);
-}
