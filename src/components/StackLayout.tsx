@@ -23,7 +23,7 @@ export const StackLayout: React.FC<StackLayoutProps> = ({
     <main className="flex flex-col justify-between w-full p-1">
       <section
         className={clsx(
-          'max-h-1/4 overflow-hidden',
+          'h-1/4 overflow-hidden',
           debug && 'border border-red-500 border-dotted',
         )}
       >
