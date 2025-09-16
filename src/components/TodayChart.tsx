@@ -1,6 +1,6 @@
 import { themeColors } from '@/themeColors';
 import type { HourData } from '@/types';
-import { createAlternatingArray, oklchSetAlpha } from '@/utils';
+import { oklchSetAlpha } from '@/utils';
 import { type ChartOptions, type ChartData } from 'chart.js';
 import { useMemo } from 'react';
 
@@ -17,10 +17,10 @@ export const TodayChart = ({ data }: TodayChartProps) => {
       datasets: [
         {
           data: [...data.slice(12), ...data.slice(0, 12)],
-          backgroundColor: createAlternatingArray(
-            24,
-            oklchSetAlpha(themeColors['primary'], 0.6),
-            oklchSetAlpha(themeColors['primary-light'], 0.6),
+          backgroundColor: data.map((_: number, i: number) =>
+            i % 2 === 0
+              ? oklchSetAlpha(themeColors['primary'], 0.6)
+              : oklchSetAlpha(themeColors['primary-light'], 0.6),
           ),
           borderWidth: 1,
           borderColor: themeColors['secondary'],
@@ -29,6 +29,7 @@ export const TodayChart = ({ data }: TodayChartProps) => {
     }),
     [data],
   );
+
   const chartOptions: ChartOptions<'polarArea'> = useMemo(
     () => ({
       maintainAspectRatio: false,
