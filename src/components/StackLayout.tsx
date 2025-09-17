@@ -8,11 +8,7 @@ interface StackLayoutProps {
   debug?: boolean;
 }
 
-export const StackLayout: React.FC<StackLayoutProps> = ({
-  children,
-  // TODO: remove this
-  debug,
-}) => {
+export const StackLayout = ({ children }: StackLayoutProps) => {
   if (React.Children.count(children) !== 3) {
     throw new Error('StackLayout must have exactly 3 children');
   }
@@ -20,26 +16,10 @@ export const StackLayout: React.FC<StackLayoutProps> = ({
   const [topChild, midChild, bottomChild] = React.Children.toArray(children);
 
   return (
-    <main className="flex flex-col justify-between w-full p-1">
-      <section
-        className={clsx(
-          'h-1/4 overflow-hidden',
-          debug && 'border border-red-500 border-dotted',
-        )}
-      >
-        {topChild}
-      </section>
-      <section
-        className={clsx(
-          'flex-1 overflow-y-auto',
-          debug && 'border border-red-500 border-dotted',
-        )}
-      >
-        {midChild}
-      </section>
-      <section className={clsx(debug && 'border border-red-500 border-dotted')}>
-        {bottomChild}
-      </section>
+    <main className="flex flex-col justify-between w-full px-1 pb-6 pt-2">
+      <section className={clsx('h-1/4 overflow-hidden')}>{topChild}</section>
+      <section className={clsx('flex-1 overflow-y-auto')}>{midChild}</section>
+      <section className={clsx()}>{bottomChild}</section>
     </main>
   );
 };
